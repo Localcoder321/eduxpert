@@ -14,6 +14,9 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   youtube_player_iframe: ^5.2.1
+  go_router: ^14.6.3
+  flutter_svg: ^2.0.17
+  youtube_player_flutter: ^9.1.1
 
 dev_dependencies:
   flutter_test:
