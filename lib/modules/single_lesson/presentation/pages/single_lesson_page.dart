@@ -5,10 +5,15 @@ import 'package:go_router/go_router.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class SingleLessonPage extends StatefulWidget {
-  final String lessonName;
+  final String title;
   final String videoId;
-  const SingleLessonPage(
-      {super.key, required this.lessonName, required this.videoId});
+  final String description;
+  const SingleLessonPage({
+    super.key,
+    required this.title,
+    required this.videoId,
+    required this.description,
+  });
 
   @override
   State<SingleLessonPage> createState() => _SingleLessonPageState();
@@ -60,7 +65,7 @@ class _SingleLessonPageState extends State<SingleLessonPage> {
               ),
             ),
             title: Text(
-              widget.lessonName,
+              widget.title,
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 20,
@@ -95,9 +100,9 @@ class _SingleLessonPageState extends State<SingleLessonPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  "Lorem ipsum dolor sit amet consectetur adipiscing elit volutpat hendrerit dui malesuada, augue penatibus primis conubia vel semper suspendisse vestibulum tincidunt litora. Elementum enim rutrum facilisis nascetur in dignissim ex est fusce vulputate magnis nec congue, vehicula odio varius vivamus phasellus dui dictumst auctor felis tortor neque. Penatibus tortor ante mi parturient aptent rhoncus dolor justo erat ex finibus et, urna interdum eu lacus varius nibh lobortis consectetur egestas habitasse. Mauris himenaeos purus luctus egestas class cubilia venenatis cursus facilisi vitae hendrerit libero, urna fermentum neque lectus duis dictum nisl scelerisque auctor conubia.",
-                  style: TextStyle(
+                Text(
+                  widget.description,
+                  style: const TextStyle(
                     color: Colors.black,
                     fontSize: 12,
                     fontWeight: FontWeight.w400,

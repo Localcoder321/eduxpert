@@ -1,3 +1,4 @@
+import 'package:eduxpert/assets/constants/app_images.dart';
 import 'package:flutter/material.dart';
 
 class PaymentMethods extends StatefulWidget {
@@ -40,7 +41,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
               ),
               color: Colors.transparent,
             ),
-            child: Image.asset("assets/images/payme.png"),
+            child: Image.asset(AppImages.payme),
           ),
         ),
         const SizedBox(width: 10),
@@ -58,7 +59,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                       : Colors.black),
               color: Colors.transparent,
             ),
-            child: Image.asset("assets/images/click.png"),
+            child: Image.asset(AppImages.click),
           ),
         ),
       ],

@@ -1,3 +1,4 @@
+import 'package:eduxpert/modules/main_page/presentation/lesson.dart';
 import 'package:eduxpert/modules/main_page/presentation/pages/main_page.dart';
 import 'package:eduxpert/modules/profile/presentation/pages/profile_page.dart';
 import 'package:eduxpert/modules/profile/presentation/pages/subscription_page.dart';
@@ -17,12 +18,14 @@ final GoRouter router = GoRouter(initialLocation: '/register_page', routes: [
   GoRoute(
     path: '/single_lesson',
     builder: (context, state) {
-      final lesson = state.extra as Map<String, String>;
-      final lessonName = lesson['name'] ?? "";
-      final videoId = lesson['videoId'] ?? "";
+      final lesson = state.extra as Lesson;
+      final title = lesson.title ?? "";
+      final videoId = lesson.videoId ?? "";
+      final description = lesson.description ?? "";
       return SingleLessonPage(
-        lessonName: lessonName,
+        title: title,
         videoId: videoId,
+        description: description,
       );
     },
   ),
@@ -30,7 +33,8 @@ final GoRouter router = GoRouter(initialLocation: '/register_page', routes: [
     path: '/single_subject/:subjectName',
     builder: (context, state) {
       final subjectName = state.pathParameters['subjectName'] ?? "";
-      return SingleSubjectPage(subjectName: subjectName);
+      final lessons = state.extra as List<Lesson>;
+      return SingleSubjectPage(subjectName: subjectName, lessons: lessons);
     },
   ),
   GoRoute(

@@ -1,4 +1,6 @@
+import 'package:eduxpert/assets/constants/app_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomSubject extends StatelessWidget {
   final String subjectName;
@@ -24,13 +26,9 @@ class CustomSubject extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Icon(
-                Icons.abc_rounded,
-                color: Colors.black,
-                size: 40,
-              ),
+             Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SvgPicture.asset(icon),
             ),
             Container(
               height: 80,

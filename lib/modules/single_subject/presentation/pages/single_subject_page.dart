@@ -1,26 +1,16 @@
 import 'package:eduxpert/globals/widgets/custom_lesson_card.dart';
+import 'package:eduxpert/modules/main_page/presentation/lesson.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class SingleSubjectPage extends StatelessWidget {
   final String subjectName;
-  const SingleSubjectPage({super.key, required this.subjectName});
+  final List<Lesson> lessons;
+  const SingleSubjectPage(
+      {super.key, required this.subjectName, required this.lessons});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> lessons = [
-      {"name": "Plus and Minus", "videoId": "YPoU85YGwG4"},
-      {"name": "Divide", "videoId": "fmVDXW21qSo"},
-      {"name": "Multiply", "videoId": "hkmRI-gPSLQ"},
-      {"name": "Fractions", "videoId": "Z2QgF26DYeo"},
-      {"name": "Equations", "videoId": "Ss8lkI-7Qc8"},
-      {"name": "Geometry", "videoId": "BPk1uJ4txPc"},
-      {"name": "Trigonometry", "videoId": "_HbEl-2n5AQ"},
-      {
-        "name": "Algebra and Geometry as different modules in math",
-        "videoId": "cnJ2GKQN-28"
-      },
-    ];
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -59,7 +49,7 @@ class SingleSubjectPage extends StatelessWidget {
                 extra: lesson,
               ),
               child: CustomLessonCard(
-                text: "Lesson ${index + 1} - ${lesson["name"]}",
+                text: "Lesson ${index + 1} - ${lesson.title}",
               ),
             );
           },
