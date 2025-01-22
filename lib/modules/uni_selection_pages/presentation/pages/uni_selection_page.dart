@@ -1,4 +1,3 @@
-import 'package:eduxpert/core/router/app_router.dart';
 import 'package:eduxpert/modules/uni_selection_pages/presentation/widgets/custom_container.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
