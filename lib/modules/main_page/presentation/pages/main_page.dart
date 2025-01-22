@@ -20,10 +20,6 @@ class _MainPageState extends State<MainPage> {
       "subjectName": "English",
       "lessonCount": 10,
     },
-    {
-      "subjectName": "History",
-      "lessonCount": 6,
-    }
   ];
   @override
   Widget build(BuildContext context) {
@@ -77,24 +73,28 @@ class _MainPageState extends State<MainPage> {
                 fontWeight: FontWeight.w400,
               ),
             ),
-            //const SizedBox(height: 8),
+            const SizedBox(height: 8),
             Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: subjects.length,
-                itemBuilder: (context, index) {
-                  final subject = subjects[index];
-                  return GestureDetector(
-                    onTap: () {
-                      context.push('/single_subject/${subject['subjectName']}');
+              child: SingleChildScrollView(
+                child: Column(
+                  children: List.generate(
+                    subjects.length,
+                    (index) {
+                      final subject = subjects[index];
+                      return GestureDetector(
+                        onTap: () {
+                          context.push(
+                              '/single_subject/${subject['subjectName']}');
+                        },
+                        child: CustomSubject(
+                          subjectName: subject['subjectName'],
+                          lessonCount: subject['lessonCount'],
+                          icon: "",
+                        ),
+                      );
                     },
-                    child: CustomSubject(
-                      subjectName: subject['subjectName'],
-                      lessonCount: subject['lessonCount'],
-                      icon: "",
-                    ),
-                  );
-                },
+                  ),
+                ),
               ),
             ),
           ],
