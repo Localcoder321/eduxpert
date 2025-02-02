@@ -8,11 +8,13 @@ class SingleLessonPage extends StatefulWidget {
   final String title;
   final String videoId;
   final String description;
+  final List<Map<String, String>> materials;
   const SingleLessonPage({
     super.key,
     required this.title,
     required this.videoId,
     required this.description,
+    this.materials = const [],
   });
 
   @override
@@ -109,18 +111,30 @@ class _SingleLessonPageState extends State<SingleLessonPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  "Materials which may be useful for this lesson:",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                if (widget.materials.isNotEmpty) ...[
+                  const Text(
+                    "Materials which may be useful for this lesson:",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                const CustomLessonCard(text: "Material 1 from internet link"),
-                const CustomLessonCard(
-                    text: "Material 2 from internet in PDF format"),
+                  const SizedBox(height: 12),
+                  Column(
+                    children: widget.materials
+                        .map((material) => CustomLessonCard(
+                              text: material['title'] ?? "Material",
+                              url: material["url"],
+                            ))
+                        .toList(),
+                  ),
+                ] else ...[
+                  const Text(
+                    "No materials available.",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
               ],
             ),
           ),

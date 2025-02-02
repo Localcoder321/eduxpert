@@ -22,10 +22,12 @@ final GoRouter router = GoRouter(initialLocation: '/register_page', routes: [
       final title = lesson.title ?? "";
       final videoId = lesson.videoId ?? "";
       final description = lesson.description ?? "";
+      final materials = lesson.materials ?? [];
       return SingleLessonPage(
         title: title,
         videoId: videoId,
         description: description,
+        materials: materials,
       );
     },
   ),

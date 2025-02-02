@@ -2,11 +2,13 @@ class Lesson {
   final String title;
   final String description;
   final String videoId;
+  final List<Map<String, String>> materials;
 
   Lesson({
     required this.title,
     required this.description,
     required this.videoId,
+    this.materials = const [],
   });
 
   // Factory method to create a Lesson from a map
@@ -15,6 +17,7 @@ class Lesson {
       title: map['title'],
       description: map['description'],
       videoId: map['videoId'] ?? '', // Handle videoId being null
+      materials: List<Map<String, String>>.from(map['materials']),
     );
   }
 
@@ -24,6 +27,8 @@ class Lesson {
       'title': title,
       'description': description,
       'videoId': videoId,
+      'materials':
+          materials.map((item) => Map<String, String>.from(item)).toList(),
     };
   }
 }
