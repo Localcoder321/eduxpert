@@ -2,6 +2,7 @@ import 'package:eduxpert/assets/constants/app_icons.dart';
 import 'package:eduxpert/modules/main_page/presentation/lesson.dart';
 import 'package:eduxpert/modules/main_page/presentation/widgets/custom_drawer.dart';
 import 'package:eduxpert/modules/main_page/presentation/widgets/custom_subject.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -325,6 +326,9 @@ class _MainPageState extends State<MainPage> {
       ],
     },
   ];
+
+  User? user = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -345,9 +349,9 @@ class _MainPageState extends State<MainPage> {
             Builder(builder: (BuildContext context) {
               return Row(
                 children: [
-                  const Text(
-                    "Hello User!",
-                    style: TextStyle(
+                  Text(
+                    "Hello ${user?.displayName}!",
+                    style: const TextStyle(
                       color: Colors.black,
                       fontSize: 24,
                       fontWeight: FontWeight.w700,

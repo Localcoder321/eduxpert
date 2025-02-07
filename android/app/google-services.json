@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "581961070269",
+    "project_id": "eduxpert-b9c65",
+    "storage_bucket": "eduxpert-b9c65.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581961070269:android:8054cbd0830822568169d4",
+        "android_client_info": {
+          "package_name": "dev.localcoder.eduxpert"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArrBo46fBX5H4v87Her9BqbWfP_BqpvmQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
