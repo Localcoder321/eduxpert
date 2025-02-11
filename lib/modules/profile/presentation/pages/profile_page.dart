@@ -6,14 +6,37 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final AuthService _authService = AuthService();
-    User? user = FirebaseAuth.instance.currentUser;
+  State<ProfilePage> createState() => _ProfilePageState();
+}
 
+class _ProfilePageState extends State<ProfilePage> {
+  final AuthService _authService = AuthService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? user;
+
+  late TextEditingController nameController;
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
+
+  bool isEditingName = false;
+  bool isEditingEmail = false;
+  bool isEditingPassword = false;
+
+  @override
+  void initState() {
+    super.initState();
+    user = _auth.currentUser;
+    nameController = TextEditingController(text: user?.displayName ?? "");
+    emailController = TextEditingController(text: user?.email ?? "");
+    passwordController = TextEditingController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -40,22 +63,25 @@ class ProfilePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(height: 40),
-            ProfileTile(text: user?.displayName ?? "Unknown"),
-            const Divider(
-              color: Colors.grey,
+            ProfileTile(
+              label: 'Name',
+              initialValue: user?.displayName ?? "Unknown",
+              onSaved: (String value) => _updateUsername(value),
             ),
-            const ProfileTile(text: "Age"),
-            const Divider(
-              color: Colors.grey,
+            const Divider(color: Colors.grey),
+            ProfileTile(
+              label: 'Email',
+              initialValue: user?.email ?? "Unknown",
+              onSaved: (String value) => _updateEmail(value),
             ),
-            ProfileTile(text: user?.email ?? "Unknown"),
-            const Divider(
-              color: Colors.grey,
+            const Divider(color: Colors.grey),
+            ProfileTile(
+              label: 'Password',
+              initialValue: "********",
+              isPassword: true,
+              onSaved: (String value) => _updatePassword(value),
             ),
-            const ProfileTile(text: "Password"),
-            const Divider(
-              color: Colors.grey,
-            ),
+            const Divider(color: Colors.grey),
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -176,5 +202,54 @@ class ProfilePage extends StatelessWidget {
           ),
         ) ??
         false;
+  }
+
+  Future<void> _updateUsername(String newName) async {
+    try {
+      await user?.updateDisplayName(nameController.text);
+      await user?.reload();
+      user = _auth.currentUser;
+      setState(() {
+        isEditingName = false;
+      });
+      _showMessage("Name updated successfully!");
+    } catch (e) {
+      _showMessage("Error updating name ${e.toString()}", isError: true);
+    }
+  }
+
+  Future<void> _updateEmail(String newEmail) async {
+    try {
+      await user?.updateEmail(emailController.text);
+      await user?.reload();
+      user = _auth.currentUser;
+      setState(() {
+        isEditingEmail = false;
+      });
+      _showMessage("Email updated successfully!");
+    } catch (e) {
+      _showMessage("Error updating email ${e.toString()}", isError: true);
+    }
+  }
+
+  Future<void> _updatePassword(String newPassword) async {
+    try {
+      await user?.updatePassword(passwordController.text);
+      await user?.reload();
+      user = _auth.currentUser;
+      setState(() {
+        isEditingPassword = false;
+      });
+      _showMessage("Password updated successfully!");
+    } catch (e) {
+      _showMessage("Error updating password ${e.toString()}", isError: true);
+    }
+  }
+
+  void _showMessage(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      backgroundColor: isError ? Colors.red : Colors.green,
+    ));
   }
 }

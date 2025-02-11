@@ -13,7 +13,6 @@ class RegisterWidget extends StatefulWidget {
 
 class _RegisterWidgetState extends State<RegisterWidget> {
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController ageController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final AuthService _authService = AuthService();
@@ -25,19 +24,11 @@ class _RegisterWidgetState extends State<RegisterWidget> {
     });
 
     String name = nameController.text.trim();
-    String age = ageController.text.trim();
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
 
-    if (name.isEmpty || age.isEmpty || email.isEmpty || password.isEmpty) {
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
       showError("Please fill in all fields.");
-      setState(() {
-        isLoading = false;
-      });
-      return;
-    }
-    if (int.tryParse(age) == null || int.parse(age) <= 0) {
-      showError("Please enter a valid age");
       setState(() {
         isLoading = false;
       });
@@ -88,16 +79,6 @@ class _RegisterWidgetState extends State<RegisterWidget> {
             hintText: "Your name",
             isPassword: false,
             controller: nameController,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
-          child: CustomTextField(
-            hintText: "Your age",
-            isPassword: false,
-            textInputType: TextInputType.number,
-            controller: ageController,
           ),
         ),
         const SizedBox(height: 8),
