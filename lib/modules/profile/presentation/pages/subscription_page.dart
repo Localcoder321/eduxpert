@@ -2,6 +2,7 @@ import 'package:eduxpert/modules/profile/presentation/widgets/payment_methods_wi
 import 'package:eduxpert/modules/profile/presentation/widgets/selected_subjects_list.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SubscriptionPage extends StatefulWidget {
   const SubscriptionPage({super.key});
@@ -10,13 +11,67 @@ class SubscriptionPage extends StatefulWidget {
   State<SubscriptionPage> createState() => _SubscriptionPageState();
 }
 
-class _SubscriptionPageState extends State<SubscriptionPage> {
+class _SubscriptionPageState extends State<SubscriptionPage>
+    with WidgetsBindingObserver {
   int selectedPaymentMethod = -1;
+  bool _isWaitingForPayment = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _isWaitingForPayment) {
+      _isWaitingForPayment = false;
+      context.go("/main_page");
+    }
+  }
 
   void _onPaymentMethodSelected(int index) {
     setState(() {
       selectedPaymentMethod = index;
     });
+  }
+
+  void _handlePay() async {
+    if (selectedPaymentMethod.isNegative) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please select payment method!"),
+        ),
+      );
+      return;
+    }
+
+    Uri paymentUrl;
+
+    if (selectedPaymentMethod == 0) {
+      paymentUrl = Uri.parse(
+          "https://checkout.paycom.uz/fake_merchant_id?amount=10000&account[user_id]=123");
+    } else {
+      paymentUrl = Uri.parse(
+          "https://my.click.uz/services/pay?service_id=9999&merchant_id=9999&amount=10000&transaction_param=123");
+    }
+
+    if (await canLaunchUrl(paymentUrl)) {
+      _isWaitingForPayment = true;
+      await launchUrl(paymentUrl, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Could not launch payment page."),
+        ),
+      );
+    }
   }
 
   @override
@@ -91,17 +146,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             ),
             const Spacer(),
             GestureDetector(
-              onTap: () {
-                if (!selectedPaymentMethod.isNegative) {
-                  context.go("/main_page");
-                } else if (selectedPaymentMethod.isNegative) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Please select a payment method."),
-                    ),
-                  );
-                }
-              },
+              onTap: _handlePay,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 width: double.infinity,
