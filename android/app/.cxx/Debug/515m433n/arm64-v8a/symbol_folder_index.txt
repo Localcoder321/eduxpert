@@ -1,0 +1,1 @@
+/Users/murodabdumajidov/AndroidStudioProjects/eduxpert/build/app/intermediates/cxx/Debug/515m433n/obj/arm64-v8a

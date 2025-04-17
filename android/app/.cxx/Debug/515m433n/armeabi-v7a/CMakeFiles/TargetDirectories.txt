@@ -1,0 +1,2 @@
+/Users/murodabdumajidov/AndroidStudioProjects/eduxpert/android/app/.cxx/Debug/515m433n/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/murodabdumajidov/AndroidStudioProjects/eduxpert/android/app/.cxx/Debug/515m433n/armeabi-v7a/CMakeFiles/rebuild_cache.dir
