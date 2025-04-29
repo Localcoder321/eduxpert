@@ -1,6 +1,6 @@
-import 'package:eduxpert/auth_provider.dart';
+import 'package:eduxpert/core/service/provider/auth_provider.dart';
 import 'package:eduxpert/modules/register_login/presentation/widgets/custom_textfield.dart';
-import 'package:eduxpert/user_provider.dart';
+import 'package:eduxpert/core/service/provider/user_provider.dart';
 import 'package:eduxpert/utils/constants/show_error.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

@@ -9,7 +9,7 @@ class NewSubscriptionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push("/subscription_page"),
+      onTap: () => context.push("/uni_selection_page"),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(

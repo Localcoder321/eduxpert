@@ -1,9 +1,9 @@
-import 'package:eduxpert/auth_provider.dart';
+import 'package:eduxpert/core/service/provider/auth_provider.dart';
 import 'package:eduxpert/core/service/firebase/auth_service.dart';
 import 'package:eduxpert/modules/profile/presentation/widgets/custom_button.dart';
 import 'package:eduxpert/modules/profile/presentation/widgets/profile_tile.dart';
 import 'package:eduxpert/modules/register_login/presentation/widgets/custom_textfield.dart';
-import 'package:eduxpert/user_provider.dart';
+import 'package:eduxpert/core/service/provider/user_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -146,8 +146,8 @@ class _ProfilePageState extends State<ProfilePage> {
     context.go('/register_page');
   }
 
-  void _handleDeleteAccount(
-      BuildContext context, AuthService authService, String password) async {
+  void _handleDeleteAccount(BuildContext safeContext, AuthService authService,
+      String password) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
 
@@ -158,26 +158,33 @@ class _ProfilePageState extends State<ProfilePage> {
       }
 
       await authService.deleteUser(password);
-      if (context.mounted) {
-        context.read<AuthProvider1>().logout();
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool("is_logged-in", false);
-        context.go('/register_page');
+
+      if(safeContext.mounted) {
+        safeContext.read<AuthProvider1>().logout();
+        print("pre-final stage");
+      }
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool("is_logged-in", false);
+      print("final stage");
+
+      if (safeContext.mounted) {
+        print("yeah boy");
+        safeContext.go('/register_page');
       }
     } catch (e) {
       print("Account deletion error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(safeContext).showSnackBar(
         const SnackBar(
             content: Text("Account deletion failed. Check your password.")),
       );
     }
   }
 
-  Future<String?> _showPasswordDialog(BuildContext context) async {
+  Future<String?> _showPasswordDialog(BuildContext safeContext) async {
     final passwordController = TextEditingController();
     return showDialog<String?>(
-        context: context,
-        builder: (context) => AlertDialog(
+        context: safeContext,
+        builder: (dialogContext) => AlertDialog(
               title: const Text("Confirm Account Deletion"),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -194,15 +201,16 @@ class _ProfilePageState extends State<ProfilePage> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pop(dialogContext);
                   },
                   child: const Text("Cancel"),
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pop(dialogContext);
+                    print("here we go");
                     _handleDeleteAccount(
-                      context,
+                      safeContext,
                       _authService,
                       passwordController.text.trim(),
                     );

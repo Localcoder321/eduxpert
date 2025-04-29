@@ -2,7 +2,7 @@ import 'package:eduxpert/assets/constants/app_icons.dart';
 import 'package:eduxpert/modules/main_page/presentation/lesson.dart';
 import 'package:eduxpert/modules/main_page/presentation/widgets/custom_drawer.dart';
 import 'package:eduxpert/modules/main_page/presentation/widgets/custom_subject.dart';
-import 'package:eduxpert/user_provider.dart';
+import 'package:eduxpert/core/service/provider/user_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

@@ -1,6 +1,6 @@
-import 'package:eduxpert/auth_provider.dart';
+import 'package:eduxpert/core/service/provider/auth_provider.dart';
 import 'package:eduxpert/core/service/firebase/firebase_options.dart';
-import 'package:eduxpert/user_provider.dart';
+import 'package:eduxpert/core/service/provider/user_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

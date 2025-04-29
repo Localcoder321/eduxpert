@@ -1,4 +1,4 @@
-import 'package:eduxpert/auth_provider.dart';
+import 'package:eduxpert/core/service/provider/auth_provider.dart';
 import 'package:eduxpert/modules/main_page/presentation/lesson.dart';
 import 'package:eduxpert/modules/main_page/presentation/pages/main_page.dart';
 import 'package:eduxpert/modules/profile/presentation/pages/profile_page.dart';
