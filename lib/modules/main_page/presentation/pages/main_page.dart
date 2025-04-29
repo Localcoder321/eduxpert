@@ -2,9 +2,11 @@ import 'package:eduxpert/assets/constants/app_icons.dart';
 import 'package:eduxpert/modules/main_page/presentation/lesson.dart';
 import 'package:eduxpert/modules/main_page/presentation/widgets/custom_drawer.dart';
 import 'package:eduxpert/modules/main_page/presentation/widgets/custom_subject.dart';
+import 'package:eduxpert/user_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -331,6 +333,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       endDrawer: const CustomDrawer(),
@@ -350,7 +353,7 @@ class _MainPageState extends State<MainPage> {
               return Row(
                 children: [
                   Text(
-                    "Hello ${user?.displayName}!",
+                   userProvider != null ? "Hello ${userProvider.name}!" : "Loading ...",
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 24,

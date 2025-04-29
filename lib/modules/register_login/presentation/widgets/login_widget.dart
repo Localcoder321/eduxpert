@@ -1,9 +1,11 @@
-import 'package:eduxpert/core/service/firebase/auth_service.dart';
+import 'package:eduxpert/auth_provider.dart';
 import 'package:eduxpert/modules/register_login/presentation/widgets/custom_textfield.dart';
+import 'package:eduxpert/user_provider.dart';
 import 'package:eduxpert/utils/constants/show_error.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({super.key});
@@ -13,7 +15,6 @@ class LoginWidget extends StatefulWidget {
 }
 
 class _LoginWidgetState extends State<LoginWidget> {
-  final AuthService _authService = AuthService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -31,18 +32,22 @@ class _LoginWidgetState extends State<LoginWidget> {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
 
-    try {
-      User? user = await _authService.login(email, password);
-      if (user != null && mounted) {
-        print("Login successful ${user.email}");
-        context.pushReplacement('/main_page');
-      } else {
-        if(!mounted) return;
-        ShowError(context, "Invalid email or password");
+    final authProvider = Provider.of<AuthProvider1>(context, listen: false);
+    final success = await authProvider.login(email, password);
+
+    if (success && mounted) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool("is_logged-in", true);
+
+      final user = authProvider.user;
+      if (user != null) {
+        Provider.of<UserProvider>(context, listen: false)
+            .setUserData(user.displayName ?? '', user.email ?? '');
       }
-    } catch (e) {
-      if(!mounted) return;
-      ShowError(context, "Login failed. Please try again.");
+      if (!mounted) return;
+      context.go('/main_page');
+    } else if (mounted) {
+      ShowError(context, "Invalid email or password");
     }
 
     setState(() {

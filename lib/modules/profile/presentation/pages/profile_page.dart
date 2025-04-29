@@ -1,10 +1,14 @@
+import 'package:eduxpert/auth_provider.dart';
 import 'package:eduxpert/core/service/firebase/auth_service.dart';
 import 'package:eduxpert/modules/profile/presentation/widgets/custom_button.dart';
 import 'package:eduxpert/modules/profile/presentation/widgets/profile_tile.dart';
 import 'package:eduxpert/modules/register_login/presentation/widgets/custom_textfield.dart';
+import 'package:eduxpert/user_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -21,6 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
   late TextEditingController nameController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
+  late ScaffoldMessengerState scaffoldMessenger;
 
   bool isEditingName = false;
   bool isEditingEmail = false;
@@ -36,13 +41,19 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    scaffoldMessenger = ScaffoldMessenger.of(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: GestureDetector(
-          onTap: () => context.pop(),
+          onTap: () => context.go("/main_page"),
           child: const Icon(
             Icons.keyboard_backspace_rounded,
             color: Colors.black,
@@ -63,24 +74,32 @@ class _ProfilePageState extends State<ProfilePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(height: 40),
-            ProfileTile(
-              label: 'Name',
-              initialValue: user?.displayName ?? "Unknown",
-              onSaved: (String value) => _updateUsername(value),
+            Consumer<UserProvider>(
+              builder: (context, userProvider, child) {
+                return ProfileTile(
+                  label: 'Name',
+                  initialValue: userProvider.name,
+                  onSaved: (String value) => _updateUsername(value),
+                );
+              },
             ),
             const Divider(color: Colors.grey),
-            ProfileTile(
-              label: 'Email',
-              initialValue: user?.email ?? "Unknown",
-              onSaved: (String value) => _updateEmail(value),
-            ),
+            Consumer<UserProvider>(builder: (context, userProvider, child) {
+              return ProfileTile(
+                label: 'Email',
+                initialValue: userProvider.email,
+                onSaved: (String value) => _updateEmail(value),
+              );
+            }),
             const Divider(color: Colors.grey),
-            ProfileTile(
-              label: 'Password',
-              initialValue: "********",
-              isPassword: true,
-              onSaved: (String value) => _updatePassword(value),
-            ),
+            Consumer<UserProvider>(builder: (context, userProvider, child) {
+              return ProfileTile(
+                label: 'Password',
+                initialValue: "********",
+                isPassword: true,
+                onSaved: (String value) => _updatePassword(value),
+              );
+            }),
             const Divider(color: Colors.grey),
             const SizedBox(height: 24),
             Row(
@@ -96,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   snackBarText: 'Account successfully deleted',
                   icon: 'assets/icons/trash.svg',
                   text: 'Delete account',
-                  onTap: () => _showPasswordDialog(context, _authService),
+                  onTap: () => _showPasswordDialog(context),
                 ),
               ],
             ),
@@ -113,35 +132,50 @@ class _ProfilePageState extends State<ProfilePage> {
       "Are you sure you want to log out?",
     );
 
-    if (confirmed) {
-      await authService.logout();
-      context.go('/register_page');
+    if (!confirmed) return;
+
+    await authService.logout();
+
+    if (mounted) {
+      context.read<AuthProvider1>().logout();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool("is_logged-in", false);
     }
+
+    if (!mounted) return;
+    context.go('/register_page');
   }
 
   void _handleDeleteAccount(
       BuildContext context, AuthService authService, String password) async {
     try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null && user.email != null) {
+        final cred = EmailAuthProvider.credential(
+            email: user.email!, password: password);
+        await user.reauthenticateWithCredential(cred);
+      }
+
+      await authService.deleteUser(password);
+      if (context.mounted) {
+        context.read<AuthProvider1>().logout();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool("is_logged-in", false);
+        context.go('/register_page');
+      }
+    } catch (e) {
+      print("Account deletion error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Account deleted successfully."),
-          backgroundColor: Colors.green,
-        ),
+            content: Text("Account deletion failed. Check your password.")),
       );
-      context.go('/register_page');
-      await authService.deleteUser(password);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Error deleting account: ${e.toString()}"),
-        backgroundColor: Colors.red,
-      ));
     }
   }
 
-  void _showPasswordDialog(BuildContext context, AuthService authService) {
-    TextEditingController passwordController = TextEditingController();
-
-    showDialog(
+  Future<String?> _showPasswordDialog(BuildContext context) async {
+    final passwordController = TextEditingController();
+    return showDialog<String?>(
         context: context,
         builder: (context) => AlertDialog(
               title: const Text("Confirm Account Deletion"),
@@ -159,15 +193,17 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                   child: const Text("Cancel"),
                 ),
                 TextButton(
-                  onPressed: () async {
+                  onPressed: () {
                     Navigator.pop(context);
                     _handleDeleteAccount(
                       context,
-                      authService,
+                      _authService,
                       passwordController.text.trim(),
                     );
                   },
@@ -206,10 +242,16 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _updateUsername(String newName) async {
     try {
-      await user?.updateDisplayName(nameController.text);
-      await user?.reload();
+      await user?.updateDisplayName(newName);
+      await _auth.currentUser?.reload();
       user = _auth.currentUser;
+
+      if (mounted) {
+        context.read<UserProvider>().updateName(user?.displayName ?? "Guest");
+      }
+
       setState(() {
+        nameController.text = user?.displayName ?? "";
         isEditingName = false;
       });
       _showMessage("Name updated successfully!");
@@ -220,29 +262,42 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _updateEmail(String newEmail) async {
     try {
-      await user?.updateEmail(emailController.text);
-      await user?.reload();
+      await user?.updateEmail(newEmail);
+      await _auth.currentUser?.reload();
       user = _auth.currentUser;
+
+      if (mounted) {
+        context.read<UserProvider>().updateEmail(user?.email ?? "No email");
+      }
+
       setState(() {
+        emailController.text = user?.email ?? "";
         isEditingEmail = false;
       });
       _showMessage("Email updated successfully!");
-    } catch (e) {
-      _showMessage("Error updating email ${e.toString()}", isError: true);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "requires-recent-login") {
+        _showMessage("Please re-authenticate to update email.", isError: true);
+      } else {
+        _showMessage("Error updating email ${e.toString()}", isError: true);
+      }
     }
   }
 
   Future<void> _updatePassword(String newPassword) async {
     try {
-      await user?.updatePassword(passwordController.text);
-      await user?.reload();
+      await user?.updatePassword(newPassword);
+      await _auth.currentUser?.reload();
       user = _auth.currentUser;
-      setState(() {
-        isEditingPassword = false;
-      });
+      passwordController.clear();
       _showMessage("Password updated successfully!");
-    } catch (e) {
-      _showMessage("Error updating password ${e.toString()}", isError: true);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "requires-recent-login") {
+        _showMessage("Please re-authenticate to update password.",
+            isError: true);
+      } else {
+        _showMessage("Error updating password ${e.toString()}", isError: true);
+      }
     }
   }
 

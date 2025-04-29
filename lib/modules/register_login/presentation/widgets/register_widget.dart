@@ -1,9 +1,11 @@
-import 'package:eduxpert/core/service/firebase/auth_service.dart';
+import 'package:eduxpert/auth_provider.dart';
 import 'package:eduxpert/modules/register_login/presentation/widgets/custom_textfield.dart';
+import 'package:eduxpert/user_provider.dart';
 import 'package:eduxpert/utils/constants/show_error.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterWidget extends StatefulWidget {
   const RegisterWidget({super.key});
@@ -18,7 +20,6 @@ class _RegisterWidgetState extends State<RegisterWidget> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final AuthService _authService = AuthService();
   bool isLoading = false;
 
   void handleRegister() async {
@@ -32,15 +33,24 @@ class _RegisterWidgetState extends State<RegisterWidget> {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
 
-    User? user = await _authService.register(email, password, name);
+    final authProvider = Provider.of<AuthProvider1>(context, listen: false);
+    final success = await authProvider.register(name, email, password);
 
-    if (user != null && mounted) {
-      print("Registration successful: ${user.email}");
-      context.pushReplacement('/uni_selection_page');
-    } else {
+    if (success && mounted) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool("is_logged-in", true);
+
+      final user = authProvider.user;
+      if (user != null) {
+        Provider.of<UserProvider>(context, listen: false)
+            .setUserData(user.displayName ?? name, user.email ?? email);
+      }
       if (!mounted) return;
-      ShowError(context, "Registration failed. Please try again.");
+      context.go('/uni_selection_page');
+    } else if (mounted) {
+      ShowError(context, "Invalid email or password");
     }
+
     setState(() {
       isLoading = false;
     });

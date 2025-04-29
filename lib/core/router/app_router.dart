@@ -1,3 +1,4 @@
+import 'package:eduxpert/auth_provider.dart';
 import 'package:eduxpert/modules/main_page/presentation/lesson.dart';
 import 'package:eduxpert/modules/main_page/presentation/pages/main_page.dart';
 import 'package:eduxpert/modules/profile/presentation/pages/profile_page.dart';
@@ -10,57 +11,75 @@ import 'package:eduxpert/modules/uni_selection_pages/presentation/pages/gov_uni_
 import 'package:eduxpert/modules/uni_selection_pages/presentation/pages/uni_selection_page.dart';
 import 'package:go_router/go_router.dart';
 
-final GoRouter router = GoRouter(initialLocation: '/register_page', routes: [
-  GoRoute(
-    path: '/main_page',
-    builder: (context, state) => const MainPage(),
-  ),
-  GoRoute(
-    path: '/single_lesson',
-    builder: (context, state) {
-      final lesson = state.extra as Lesson;
-      final title = lesson.title ?? "";
-      final videoId = lesson.videoId ?? "";
-      final description = lesson.description ?? "";
-      final materials = lesson.materials ?? [];
-      return SingleLessonPage(
-        title: title,
-        videoId: videoId,
-        description: description,
-        materials: materials,
-      );
+GoRouter router(AuthProvider1 authProvider) {
+  return GoRouter(
+    initialLocation: authProvider.isLoggedIn ? '/main_page' : '/register_page',
+    refreshListenable: authProvider,
+    redirect: (context, state) {
+      final isLoggedIn = authProvider.isLoggedIn;
+      final isRegisterPage = state.uri.toString() == '/register_page';
+
+      if (!isLoggedIn && !isRegisterPage) {
+        return '/register_page';
+      }
+      if (isLoggedIn && isRegisterPage) {
+        return '/main_page';
+      }
+      return null;
     },
-  ),
-  GoRoute(
-    path: '/single_subject/:subjectName',
-    builder: (context, state) {
-      final subjectName = state.pathParameters['subjectName'] ?? "";
-      final lessons = state.extra as List<Lesson>;
-      return SingleSubjectPage(subjectName: subjectName, lessons: lessons);
-    },
-  ),
-  GoRoute(
-    path: '/register_page',
-    builder: (context, state) => const RegisterPage(),
-  ),
-  GoRoute(
-    path: '/subscription_page',
-    builder: (context, state) => const SubscriptionPage(),
-  ),
-  GoRoute(
-    path: '/subscriptions_page',
-    builder: (context, state) => const SubscriptionsPage(),
-  ),
-  GoRoute(
-    path: '/profile_page',
-    builder: (context, state) => const ProfilePage(),
-  ),
-  GoRoute(
-    path: '/uni_selection_page',
-    builder: (context, state) => const UniSelectionPage(),
-  ),
-  GoRoute(
-    path: '/gov_uni_selection_page',
-    builder: (context, state) => const GovUniSelectionPage(),
-  ),
-]);
+    routes: [
+      GoRoute(
+        path: '/main_page',
+        builder: (context, state) => const MainPage(),
+      ),
+      GoRoute(
+        path: '/single_lesson',
+        builder: (context, state) {
+          final lesson = state.extra as Lesson;
+          final title = lesson.title ?? "";
+          final videoId = lesson.videoId ?? "";
+          final description = lesson.description ?? "";
+          final materials = lesson.materials ?? [];
+          return SingleLessonPage(
+            title: title,
+            videoId: videoId,
+            description: description,
+            materials: materials,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/single_subject/:subjectName',
+        builder: (context, state) {
+          final subjectName = state.pathParameters['subjectName'] ?? "";
+          final lessons = state.extra as List<Lesson>;
+          return SingleSubjectPage(subjectName: subjectName, lessons: lessons);
+        },
+      ),
+      GoRoute(
+        path: '/register_page',
+        builder: (context, state) => const RegisterPage(),
+      ),
+      GoRoute(
+        path: '/subscription_page',
+        builder: (context, state) => const SubscriptionPage(),
+      ),
+      GoRoute(
+        path: '/subscriptions_page',
+        builder: (context, state) => const SubscriptionsPage(),
+      ),
+      GoRoute(
+        path: '/profile_page',
+        builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: '/uni_selection_page',
+        builder: (context, state) => const UniSelectionPage(),
+      ),
+      GoRoute(
+        path: '/gov_uni_selection_page',
+        builder: (context, state) => const GovUniSelectionPage(),
+      ),
+    ],
+  );
+}
